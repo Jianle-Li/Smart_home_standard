@@ -36,6 +36,8 @@
 //Ó²¼þÇý¶¯
 #include "usart.h"
 #include "delay.h"
+#include "led.h"
+#include "dht11.h"
 
 //C¿â
 #include <string.h>
@@ -376,14 +378,18 @@ unsigned char OneNet_FillBuf(char *buf)
 	
 	memset(text, 0, sizeof(text));
 	
-	strcpy(buf, "{\"id\":123,\"dp\":{");
+	strcpy(buf, "{\"id\":\"123\",\"params\":{");
 	
 	memset(text, 0, sizeof(text));
-//	sprintf(text, "\"Tempreture\":[{\"v\":%f}],", sht20_info.tempreture);
+	sprintf(text, "\"temp\":{\"value\":%d},", Data[2]);
 	strcat(buf, text);
 	
 	memset(text, 0, sizeof(text));
-//	sprintf(text, "\"Humidity\":[{\"v\":%f}]", sht20_info.humidity);
+	sprintf(text, "\"humi\":{\"value\":%d},", Data[0]);
+	strcat(buf, text);
+	
+	memset(text, 0, sizeof(text));
+	sprintf(text, "\"led\":{\"value\":%s}", Led_Status? "true" : "false");
 	strcat(buf, text);
 	
 	strcat(buf, "}}");

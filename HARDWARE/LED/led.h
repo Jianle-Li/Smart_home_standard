@@ -8,12 +8,7 @@
 #define LED1_PIN 			GPIO_Pin_10
 #define LED1_PORT_RCC		RCC_APB2Periph_GPIOB
 
-#define LED2_PORT 			GPIOE   
-#define LED2_PIN 			GPIO_Pin_5
-#define LED2_PORT_RCC		RCC_APB2Periph_GPIOE	
-
-
 void LED_Init(void);
-
+extern uint8_t Led_Status;
 
 #endif

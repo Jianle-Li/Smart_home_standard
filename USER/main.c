@@ -33,7 +33,7 @@
 #include "ad.h"
 #include "esp8266.h"
 #include "onenet.h"
-
+#include <string.h>
 
 #define ESP8266_ONENET_INFO		"AT+CIPSTART=\"TCP\",\"mqtts.heclouds.com\",1883\r\n"
 
@@ -44,6 +44,7 @@ u8 nAsrRes=0;
 u8 flag=0;
 
 uint16_t ADValue;
+uint8_t Led_Status = 0;
 
 int main(void)
 {	
@@ -61,6 +62,8 @@ int main(void)
 	uart2_init(115200);
 	nAsrStatus = LD_ASR_NONE;		//	初始状态：没有在作ASR
 	SCS=0;
+	unsigned short timeCount = 0;	//发送间隔变量
+
 	
 	OLED_Init();
 	AD_Init();
@@ -72,7 +75,7 @@ int main(void)
 		delay_ms(500);
 	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
 	
-	delay_ms(500);
+	delay_ms(100);
 	while(OneNet_DevLink())			//接入OneNET
 		delay_ms(500);
 	
@@ -125,6 +128,17 @@ int main(void)
 				OLED_ShowNum(2,10,Data[0],2);
 			}
 			delay_ms(1000);
+			
+		UsartPrintf(USART_DEBUG, "P4****temp %d ,humi %d\r\n",Data[2],Data[0]);
+		if(++timeCount >= 10)									//发送间隔5s
+			{
+				UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
+				OneNet_SendData();									//发送数据
+			
+				timeCount = 0;
+				ESP8266_Clear();
+			}
+			delay_ms(100);
 		}
 }
 
@@ -151,10 +165,13 @@ void User_Modification(u8 dat)
 			case CODE_DMCS:		//命令“代码测试”
 					printf("灯已打开\r\n"); //text.....
 					GPIO_ResetBits(LED1_PORT,LED1_PIN);//点亮LED1
+					Led_Status = 1;
 												break;
 			case CODE_CSWB:			//命令“测试完毕”
 					printf("灯已关闭\r\n"); //text.....
 					GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
+					Led_Status = 0;
+
 												break;
 			
 			case CODE_1KL1:	 //命令“北京”
