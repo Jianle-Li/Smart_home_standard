@@ -44,8 +44,7 @@ u8 nAsrRes=0;
 u8 flag=0;
 
 uint16_t ADValue;
-uint8_t Led_Status = 0;
-
+uint8_t Led_Status;
 int main(void)
 {	
 
@@ -62,7 +61,9 @@ int main(void)
 	uart2_init(115200);
 	nAsrStatus = LD_ASR_NONE;		//	初始状态：没有在作ASR
 	SCS=0;
+	Led_Status = 0;
 	unsigned short timeCount = 0;	//发送间隔变量
+	unsigned char *dataPtr = NULL;
 
 	
 	OLED_Init();
@@ -77,8 +78,9 @@ int main(void)
 	
 	delay_ms(100);
 	while(OneNet_DevLink())			//接入OneNET
-		delay_ms(500);
-	
+		delay_ms(1000);
+	OneNET_Subscribe();
+
 	printf("运行程序\r\n");
 	OLED_ShowString(1,1,"Temperature:00.0");
 	OLED_ShowString(2,1,"Humidity:");
@@ -129,7 +131,7 @@ int main(void)
 			}
 			delay_ms(1000);
 			
-		UsartPrintf(USART_DEBUG, "P4****temp %d ,humi %d\r\n",Data[2],Data[0]);
+//		UsartPrintf(USART_DEBUG, "temp %d ,humi %d\r\n",Data[2],Data[0]);
 		if(++timeCount >= 10)									//发送间隔5s
 			{
 				UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
@@ -138,7 +140,10 @@ int main(void)
 				timeCount = 0;
 				ESP8266_Clear();
 			}
-			delay_ms(100);
+		dataPtr = ESP8266_GetIPD(0);
+		if(dataPtr != NULL)
+			OneNet_RevPro(dataPtr);
+			delay_ms(10);
 		}
 }
 

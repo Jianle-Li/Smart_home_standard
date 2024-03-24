@@ -33,6 +33,7 @@
 ..\obj\onenet.o: ..\HARDWARE\MQTT\mqttkit.h
 ..\obj\onenet.o: ..\HARDWARE\MQTT\Common.h
 ..\obj\onenet.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+..\obj\onenet.o: ..\HARDWARE\CJSON\cJSON.h
 ..\obj\onenet.o: ..\HARDWARE\MQTT\base64.h
 ..\obj\onenet.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 ..\obj\onenet.o: ..\HARDWARE\MQTT\hmac_sha1.h

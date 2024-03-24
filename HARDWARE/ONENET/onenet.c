@@ -28,6 +28,7 @@
 //协议文件
 #include "onenet.h"
 #include "mqttkit.h"
+#include "cJSON.h"
 
 //算法
 #include "base64.h"
@@ -489,7 +490,7 @@ void OneNET_Subscribe(void)
 	char topic_buf[56];
 	const char *topic = topic_buf;
 	
-	snprintf(topic_buf, sizeof(topic_buf), "$sys/%s/%s/cmd/#", PROID, DEVICE_NAME);
+	snprintf(topic_buf, sizeof(topic_buf), "$sys/%s/%s/thing/property/set", PROID, DEVICE_NAME);
 	
 	UsartPrintf(USART_DEBUG, "Subscribe Topic: %s\r\n", topic_buf);
 	
@@ -533,6 +534,8 @@ void OneNet_RevPro(unsigned char *cmd)
 	char numBuf[10];
 	int num = 0;
 	
+	cJSON *raw_json, *params_json, *led_json;
+
 	type = MQTT_UnPacketRecv(cmd);
 	switch(type)
 	{
@@ -546,21 +549,24 @@ void OneNet_RevPro(unsigned char *cmd)
 				UsartPrintf(USART_DEBUG, "topic: %s, topic_len: %d, payload: %s, payload_len: %d\r\n",
 																	cmdid_topic, topic_len, req_payload, req_len);
 				
-				data_ptr = strstr(cmdid_topic, "request/");									//查找cmdid
-				if(data_ptr)
+				raw_json = cJSON_Parse(req_payload);
+				params_json = cJSON_GetObjectItem(raw_json,"params");
+				led_json = cJSON_GetObjectItem(params_json,"led");
+				if(led_json != NULL)
 				{
-					char topic_buf[80], cmdid[40];
-					
-					data_ptr = strchr(data_ptr, '/');
-					data_ptr++;
-					
-					memcpy(cmdid, data_ptr, 36);											//复制cmdid
-					cmdid[36] = 0;
-					
-					snprintf(topic_buf, sizeof(topic_buf), "$sys/%s/%s/cmd/response/%s",
-															PROID, DEVICE_NAME, cmdid);
-					OneNET_Publish(topic_buf, "ojbk");										//回复命令
+					if(led_json->type == cJSON_True)
+					{
+						GPIO_ResetBits(LED1_PORT,LED1_PIN);//点亮LED1
+						Led_Status = 1;
+					}
+					else 
+					{
+						GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
+						Led_Status = 0;
+					}
 				}
+				
+				cJSON_Delete(raw_json);
 			}
 			
 		case MQTT_PKT_PUBACK:														//发送Publish消息，平台回复的Ack
@@ -589,21 +595,6 @@ void OneNet_RevPro(unsigned char *cmd)
 	if(result == -1)
 		return;
 	
-	dataPtr = strchr(req_payload, ':');					//搜索':'
-
-	if(dataPtr != NULL && result != -1)					//如果找到了
-	{
-		dataPtr++;
-		
-		while(*dataPtr >= '0' && *dataPtr <= '9')		//判断是否是下发的命令控制数据
-		{
-			numBuf[num++] = *dataPtr++;
-		}
-		numBuf[num] = 0;
-		
-		num = atoi((const char *)numBuf);				//转为数值形式
-	}
-
 	if(type == MQTT_PKT_CMD || type == MQTT_PKT_PUBLISH)
 	{
 		MQTT_FreeBuffer(cmdid_topic);
