@@ -214,21 +214,21 @@ void ESP8266_Init(void)
 {
 	
 	ESP8266_Clear();
-	
+	delay_ms(500);
 	UsartPrintf(USART_DEBUG, "1. AT\r\n");
-	while(ESP8266_SendCmd("AT\r\n", "OK"))
+	while(ESP8266_SendCmd("AT\r\n", "OK"))//Test instructions
 		delay_ms(500);
 	
 	UsartPrintf(USART_DEBUG, "2. CWMODE\r\n");
-	while(ESP8266_SendCmd("AT+CWMODE=1\r\n", "OK"))
+	while(ESP8266_SendCmd("AT+CWMODE=1\r\n", "OK"))//Set the working mode to Station mode (client)
 		delay_ms(500);
 	
 	UsartPrintf(USART_DEBUG, "3. AT+CWDHCP\r\n");
-	while(ESP8266_SendCmd("AT+CWDHCP=1,1\r\n", "OK"))
+	while(ESP8266_SendCmd("AT+CWDHCP=1,1\r\n", "OK"))//DHCP is enabled, y=0 is off, 1 is on, X is 0 is AP, 1 is Station, and 2 is both
 		delay_ms(500);
 	
 	UsartPrintf(USART_DEBUG, "4. CWJAP\r\n");
-	while(ESP8266_SendCmd(ESP8266_WIFI_INFO, "GOT IP"))
+	while(ESP8266_SendCmd(ESP8266_WIFI_INFO, "GOT IP"))//Configure the joining AP
 		delay_ms(500);
 	
 	UsartPrintf(USART_DEBUG, "5. ESP8266 Init OK\r\n");

@@ -8,7 +8,7 @@
 /*?????*/
 void OLED_I2C_Init(void)
 {
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
@@ -155,10 +155,17 @@ void OLED_ShowChar(uint8_t Line, uint8_t Column, char Char)
   */
 void OLED_ShowString(uint8_t Line, uint8_t Column, char *String)
 {
-	uint8_t i;
-	for (i = 0; String[i] != '\0'; i++)
+	uint8_t i,y;
+	for (i = 0,y = 0; String[i] != '\0'; i++)
 	{
-		OLED_ShowChar(Line, Column + i, String[i]);
+		OLED_ShowChar(Line, Column + y, String[i]);
+		if(Column + y == 16)
+		{
+			Line++;
+			Column = 0;
+			y = 0;
+		}
+		y++;
 	}
 }
 

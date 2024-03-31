@@ -556,12 +556,14 @@ void OneNet_RevPro(unsigned char *cmd)
 				{
 					if(led_json->type == cJSON_True)
 					{
-						GPIO_ResetBits(LED1_PORT,LED1_PIN);//点亮LED1
+//						GPIO_ResetBits(LED1_PORT,LED1_PIN);//点亮LED1
+						LED_SetCompare2(100);
 						Led_Status = 1;
 					}
 					else 
 					{
-						GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
+//						GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
+						LED_SetCompare2(0);
 						Led_Status = 0;
 					}
 				}

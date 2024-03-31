@@ -20,22 +20,28 @@
 	IRQ--PB8
 	WR---GND
 */
+//Microcontroller head file
 #include "stm32f10x.h"
+#include "sys.h"
+
+//Hardware drivers
 #include "delay.h"
+#include "usart.h"
+#include "ad.h"
+
+//Peripheral modules
 #include "Reg_RW.h"
 #include "LDChip.h"
-#include "usart.h"
-
-#include "sys.h"
+#include "esp8266.h"
 #include "led.h"
 #include "dht11.h"
 #include "oled.h"
-#include "ad.h"
-#include "esp8266.h"
 #include "onenet.h"
+
+//C library
 #include <string.h>
 
-#define ESP8266_ONENET_INFO		"AT+CIPSTART=\"TCP\",\"mqtts.heclouds.com\",1883\r\n"
+#define ESP8266_ONENET_INFO		"AT+CIPSTART=\"TCP\",\"mqtts.heclouds.com\",1883\r\n" //
 
 void User_Modification(u8 dat);
 
@@ -43,8 +49,8 @@ u8 nAsrStatus=0;
 u8 nAsrRes=0;
 u8 flag=0;
 
-uint16_t ADValue;
-uint8_t Led_Status;
+uint16_t ADValue;//The value of the light sensor
+uint8_t Led_Status;//LED status flags
 int main(void)
 {	
 
@@ -54,7 +60,6 @@ int main(void)
 	EXTIX_Init();
 	
 	LED_Init();
-	
 	LD_Reset();
 	
 	uart1_init(115200);
@@ -65,14 +70,13 @@ int main(void)
 	unsigned short timeCount = 0;	//发送间隔变量
 	unsigned char *dataPtr = NULL;
 
-	
 	OLED_Init();
 	AD_Init();
 	ESP8266_Init();
 	
 	//Connect MQTT
-	UsartPrintf(USART_DEBUG, "Connect MQTTs Server...\r\n");
-	while(ESP8266_SendCmd(ESP8266_ONENET_INFO, "CONNECT"))
+	UsartPrintf(USART_DEBUG, "Connect MQTT Server...\r\n");
+	while(ESP8266_SendCmd(ESP8266_ONENET_INFO, "CONNECT"))//Establish a TCP connection
 		delay_ms(500);
 	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
 	
@@ -87,7 +91,7 @@ int main(void)
 	OLED_ShowString(3, 1, "Light:00.00%");
 	while(1)
 	{
-		
+		//Speech recognition detection
 		switch(nAsrStatus)
 		{
 			case LD_ASR_RUNING:
@@ -132,6 +136,8 @@ int main(void)
 			delay_ms(1000);
 			
 //		UsartPrintf(USART_DEBUG, "temp %d ,humi %d\r\n",Data[2],Data[0]);
+
+		//Send data to OneNet
 		if(++timeCount >= 10)									//发送间隔5s
 			{
 				UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
@@ -140,6 +146,7 @@ int main(void)
 				timeCount = 0;
 				ESP8266_Clear();
 			}
+		//Get OneNet data	
 		dataPtr = ESP8266_GetIPD(0);
 		if(dataPtr != NULL)
 			OneNet_RevPro(dataPtr);
@@ -167,25 +174,44 @@ void User_Modification(u8 dat)
 		flag=0;
 		switch(nAsrRes)		   //对结果执行相关操作,客户修改
 		{
-			case CODE_DMCS:		//命令“代码测试”
+			case CODE_DMCS:		//命令“开灯”
 					printf("灯已打开\r\n"); //text.....
-					GPIO_ResetBits(LED1_PORT,LED1_PIN);//点亮LED1
+//					GPIO_ResetBits(LED1_PORT,LED1_PIN);//点亮LED1
+					LED_SetCompare2(100);
 					Led_Status = 1;
 												break;
-			case CODE_CSWB:			//命令“测试完毕”
+			case CODE_CSWB:			//命令“关灯”
 					printf("灯已关闭\r\n"); //text.....
-					GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
+//					GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
+			LED_SetCompare2(0);
 					Led_Status = 0;
-
 												break;
 			
-			case CODE_1KL1:	 //命令“北京”
-					printf("\"北京\"识别成功\r\n"); //text.....
+			case CODE_1KL1:	 //命令“亮度加”
+				if(LED_GetCapture2() == 100)
+				{
+					printf("亮度已为最大\r\n"); 
+				}
+				else
+				{
+					LED_SetCompare2(LED_GetCapture2() + 25);
+					printf("亮度已增加\r\n");
+				}					//text.....
 												break;
-			case CODE_1KL2:		//命令“上海”
-		
-					printf("\"上海\"识别成功\r\n"); //text.....
+				
+			case CODE_1KL2:		//命令“亮度减”
+				if(LED_GetCapture2() == 0)
+				{
+					printf("亮度已为最小\r\n"); 
+				}
+				else
+				{
+					LED_SetCompare2(LED_GetCapture2() - 25);
+					printf("亮度已减小\r\n");
+				} 				//text.....
 												break;
+				
+				
 			case CODE_1KL3:	 //命令“开灯”
 					printf("\"开灯\"识别成功\r\n"); //text.....
 												break;
