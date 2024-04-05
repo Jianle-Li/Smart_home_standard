@@ -1,6 +1,7 @@
 <template>
 	<view class="warp">
 		<view class="dev-area">
+			
 			<view class="dev-cart">
 				<view class="">
 					<view class="dev-name">温度</view>
@@ -8,6 +9,7 @@
 				</view>
 				<view class="dev-data">{{temp}}℃</view>
 			</view>
+			
 			<view class="dev-cart">
 				<view class="">
 					<view class="dev-name">湿度</view>
@@ -15,6 +17,7 @@
 				</view>
 				<view class="dev-data">{{humi}}%</view>
 			</view>
+			
 			<view class="dev-cart">
 				<view class="">
 					<view class="dev-name">台灯</view>
@@ -22,6 +25,7 @@
 				</view>
 				<switch :checked="led" @change="onLedSwitch" color="#0b6b11"/>
 			</view>
+			
 			<view class="dev-cart">
 				<view class="">
 					3120002342
@@ -54,7 +58,6 @@
 				version: '2022-05-01',
 				user_id: '377780',
 			}
-
 			this.token = createCommonToken(params);
 		},
 		onShow() {
@@ -75,7 +78,7 @@
 					header: {
 						'authorization': this.token //自定义请求头信息
 					},
-					success: (res) => {
+					success: (res	) => {
 						console.log(res.data);
 						this.temp = res.data.data[2].value;
 						this.humi = res.data.data[0].value;

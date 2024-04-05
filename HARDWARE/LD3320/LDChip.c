@@ -234,11 +234,11 @@ u8 LD_AsrAddFixed(void)
 		
 																		"liang du jia",\
 																		"liang du jian",\
-																		"kai meng",\
-																		"guan meng",\
+																		"kai feng shan",\
+																		"guan feng shan",\
 		
-																		"guang zhou",\
-																		"shen zhen",\
+																		"kai qi tiao guang",\
+																		"guan bi tiao guang",\
 																		"xiang zuo zhuan",\
 																		"xiang you zhuan",\
 		

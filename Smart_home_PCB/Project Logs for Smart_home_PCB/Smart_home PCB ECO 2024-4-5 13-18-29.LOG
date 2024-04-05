@@ -1,0 +1,10 @@
+Added Component: Designator=JP_L(HDR-1X17)
+Add component (AddParameter): Name = "BOM名称"; Value = "17P接插件"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "学习资源"; Value = "www.ooocke.com"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "版权归属"; Value = "源创客"; VariantName = "[No Variations]"
+Added Component: Designator=JP_R(HDR-1X17)
+Add component (AddParameter): Name = "BOM名称"; Value = "17P接插件"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "学习资源"; Value = "www.ooocke.com"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "版权归属"; Value = "源创客"; VariantName = "[No Variations]"
+Added Class: Name=Smart_home
+Added Room: Name=Smart_home

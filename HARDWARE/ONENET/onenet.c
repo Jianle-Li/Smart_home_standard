@@ -59,7 +59,6 @@ char key[48];
 
 extern unsigned char esp8266_buf[512];
 
-
 /*
 ************************************************************
 *	函数名称：	OTA_UrlEncode
@@ -390,7 +389,7 @@ unsigned char OneNet_FillBuf(char *buf)
 	strcat(buf, text);
 	
 	memset(text, 0, sizeof(text));
-	sprintf(text, "\"led\":{\"value\":%s}", Led_Status? "true" : "false");
+	sprintf(text, "\"led\":{\"value\":%s}", LED_Status? "true" : "false");
 	strcat(buf, text);
 	
 	strcat(buf, "}}");
@@ -558,13 +557,13 @@ void OneNet_RevPro(unsigned char *cmd)
 					{
 //						GPIO_ResetBits(LED1_PORT,LED1_PIN);//点亮LED1
 						LED_SetCompare2(100);
-						Led_Status = 1;
+						LED_Status = 1;
 					}
 					else 
 					{
 //						GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
 						LED_SetCompare2(0);
-						Led_Status = 0;
+						LED_Status = 0;
 					}
 				}
 				

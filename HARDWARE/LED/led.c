@@ -22,6 +22,15 @@
 
 #include "stm32f10x.h"                  // Device header
 
+// 定义PID控制器的参数
+#define KP 1
+#define KI 0.1
+#define KD 0.5
+
+// 定义PID控制器的变量
+float previousError = 0;
+float integral = 0;
+
 void LED_Init(void)
 {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
@@ -66,4 +75,24 @@ void LED_SetCompare2(uint16_t Compare)
 uint16_t LED_GetCapture2(void)
 {
 	return TIM_GetCapture2(TIM2);
+}
+
+// 计算PID控制器的输出
+float LED_PID_Controller(float setpoint, float current_value)
+{
+    float error = setpoint - current_value;// 计算误差
+    integral += error;// 计算积分项
+    float derivative = error - previousError;// 计算微分项
+    previousError = error;
+    float output = KP * error + KI * integral + KD * derivative;// 计算PID控制器的输出
+    // 限制输出范围在合理的范围内
+    if (output < 0)
+		{
+        output = 0;
+    }
+		else if (output > 100)
+		{
+        output = 100;
+    }
+    return output;
 }
