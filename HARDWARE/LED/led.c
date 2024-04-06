@@ -24,8 +24,8 @@
 
 // 定义PID控制器的参数
 #define KP 1
-#define KI 0.1
-#define KD 0.5
+#define KI 0.5
+#define KD 0.2
 
 // 定义PID控制器的变量
 float previousError = 0;
@@ -94,5 +94,13 @@ float LED_PID_Controller(float setpoint, float current_value)
 		{
         output = 100;
     }
+		if (integral > 150)
+		{
+			integral = 150;
+		}
+		if (integral < -150)
+		{
+			integral = -150;
+		}
     return output;
 }

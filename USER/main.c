@@ -78,17 +78,17 @@ int main(void)
 
 	OLED_Init();
 	AD_Init();
-//	ESP8266_Init();
+	ESP8266_Init();
 	
-//	//Connect MQTT
-//	UsartPrintf(USART_DEBUG, "Connect MQTT Server...\r\n");
-//	while(ESP8266_SendCmd(ESP8266_ONENET_INFO, "CONNECT"))//Establish a TCP connection
-//		delay_ms(500);
-//	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
-//	delay_ms(100);
-//	while(OneNet_DevLink())			//接入OneNET
-//		delay_ms(1000);
-//	OneNET_Subscribe();
+	//Connect MQTT
+	UsartPrintf(USART_DEBUG, "Connect MQTT Server...\r\n");
+	while(ESP8266_SendCmd(ESP8266_ONENET_INFO, "CONNECT"))//Establish a TCP connection
+		delay_ms(500);
+	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
+	delay_ms(100);
+	while(OneNet_DevLink())			//接入OneNET
+		delay_ms(1000);
+	OneNET_Subscribe();
 
 	printf("运行程序\r\n");
 	OLED_ShowString(1,1,"Temperature:00.0");
@@ -96,54 +96,53 @@ int main(void)
 	OLED_ShowString(3, 1, "Light:00.00%");
 	while(1)
 	{
-//		//Speech recognition detection
-//		ASR_Recognition(); 
-//		
+		//Speech recognition detection
+		ASR_Recognition(); 
+		
 		//Display light intensity
 		Light_Value = AD_GetValue();//Obtaining light intensity
 		OLED_ShowNum(3, 7,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100), 2);//The units place is displayed as a percentage
 		OLED_ShowNum(3, 10,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 10000) %100, 2);//Displays decimal places in percentage form
 		
-//		//Display the temperature and humidity on the screen
-//		if(DHT_Read())
-//			{
-//				OLED_ShowNum(1,13,Data[2],2);
-//				OLED_ShowNum(1,16,Data[3],1);
-//				OLED_ShowNum(2,10,Data[0],2);
-//			}
-//			delay_ms(1000);
-//			
-////		UsartPrintf(USART_DEBUG, "temp %d ,humi %d\r\n",Data[2],Data[0]);
+		//Display the temperature and humidity on the screen
+		if(DHT_Read())
+			{
+				OLED_ShowNum(1,13,Data[2],2);
+				OLED_ShowNum(1,16,Data[3],1);
+				OLED_ShowNum(2,10,Data[0],2);
+			}
+			delay_ms(1000);
+			
+//		UsartPrintf(USART_DEBUG, "temp %d ,humi %d\r\n",Data[2],Data[0]);
 
-//		//Send data to OneNet
-//		if(++timeCount >= 10)									//发送间隔5s
-//			{
-//				UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
-//				OneNet_SendData();									//发送数据
-//				timeCount = 0;
-//				ESP8266_Clear();
-//			}
+		//Send data to OneNet
+		if(++timeCount >= 10)									//发送间隔5s
+			{
+				UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
+				OneNet_SendData();									//发送数据
+				timeCount = 0;
+				ESP8266_Clear();
+			}
 
-//		//Get OneNet data	
-//		dataPtr = ESP8266_GetIPD(0);
-//		if(dataPtr != NULL)
-//			OneNet_RevPro(dataPtr);
-//			delay_ms(10);
+		//Get OneNet data	
+		dataPtr = ESP8266_GetIPD(0);
+		if(dataPtr != NULL)
+			OneNet_RevPro(dataPtr);
+			delay_ms(10);
 		
 		//LED auto-dimming
-		if(1)
+		if(LED_PID_Status == 1)
 			{
 				uint16_t n = 60;
 				uint16_t output;
 				Light_Value = AD_GetValue();//Obtaining light intensity
-				output = (uint16_t)LED_PID_Controller(n,(uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
+				output = (uint16_t)LED_PID_Controller(n,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
 				LED_SetCompare2(output);
 				printf("LED_PID%d\r\n",output);
 				delay_ms(500);
 			}
 	}
 	
-		
 }
 
 
@@ -254,12 +253,13 @@ void User_Modification(u8 dat)
 			case CODE_2KL1:	 //命令“开启调光”
 					printf("自动调光已开启\r\n"); //text.....
 					LED_PID_Status = 1;
+					LED_Status = 1;
 												break;
 			
 			case CODE_2KL2:	 //命令“关闭调光”
 					printf("自动调光已关闭\r\n"); //text.....
 					LED_PID_Status = 0;
-			
+					LED_Status = 0;
 			
 			
 												break;
