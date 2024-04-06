@@ -28,6 +28,14 @@
 			
 			<view class="dev-cart">
 				<view class="">
+					<view class="dev-name">风扇</view>
+					<image class="dev-logo" src="../../static/fan.png" mode=""></image>
+				</view>
+				<switch :checked="fan" @change="onFanSwitch" color="#0b6b11"/>
+			</view>
+			
+			<view class="dev-cart">
+				<view class="">
 					3120002342
 				</view>
 			</view>
@@ -49,6 +57,7 @@
 				temp: '',
 				humi: '',
 				led: false,
+				fan: false,
 				token: '',
 			}
 		},
@@ -80,9 +89,10 @@
 					},
 					success: (res	) => {
 						console.log(res.data);
-						this.temp = res.data.data[2].value;
-						this.humi = res.data.data[0].value;
-						this.led = res.data.data[1].value === 'true';
+						this.temp = res.data.data[3].value;
+						this.humi = res.data.data[1].value;
+						this.led = res.data.data[2].value === 'true';
+						this.fan = res.data.data[0].value === 'true';
 					}
 				});
 			},
@@ -106,8 +116,28 @@
 						console.log('LED' + (value ? 'ON' : 'OFF') + ' !');
 					}
 				});
+			},
+			onFanSwitch(event) {
+				console.log(event.detail.value);
+				let value = event.detail.value;
+				uni.request({
+					url: 'https://iot-api.heclouds.com/thingmodel/set-device-property', //仅为示例，并非真实接口地址。
+					method: 'POST',
+					data: {
+						product_id: 'ArzhL4445I',
+						device_name: 'd1',
+						params: {
+							"fan": value
+						}
+					},
+					header: {
+						'authorization': this.token //自定义请求头信息
+					},
+					success: (res) => {
+						console.log('FAN' + (value ? 'ON' : 'OFF') + ' !');
+					}
+				});
 			}
-
 		}
 	}
 </script>

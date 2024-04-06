@@ -61,6 +61,7 @@ int main(void)
 	SCS=0;
 	LED_Status = 0;
 	LED_PID_Status = 0;
+	FAN_Status = 0;
 	unsigned short timeCount = 0;	//发送间隔变量
 	unsigned char *dataPtr = NULL;
 	

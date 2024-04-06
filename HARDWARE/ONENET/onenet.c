@@ -38,6 +38,7 @@
 #include "usart.h"
 #include "delay.h"
 #include "led.h"
+#include "fan.h"
 #include "dht11.h"
 
 //C¿â
@@ -389,7 +390,11 @@ unsigned char OneNet_FillBuf(char *buf)
 	strcat(buf, text);
 	
 	memset(text, 0, sizeof(text));
-	sprintf(text, "\"led\":{\"value\":%s}", LED_Status? "true" : "false");
+	sprintf(text, "\"led\":{\"value\":%s},", LED_Status? "true" : "false");
+	strcat(buf, text);
+	
+	memset(text, 0, sizeof(text));
+	sprintf(text, "\"fan\":{\"value\":%s}", FAN_Status? "true" : "false");
 	strcat(buf, text);
 	
 	strcat(buf, "}}");
@@ -533,7 +538,7 @@ void OneNet_RevPro(unsigned char *cmd)
 	char numBuf[10];
 	int num = 0;
 	
-	cJSON *raw_json, *params_json, *led_json;
+	cJSON *raw_json, *params_json, *led_json, *fan_json;
 
 	type = MQTT_UnPacketRecv(cmd);
 	switch(type)
@@ -551,19 +556,32 @@ void OneNet_RevPro(unsigned char *cmd)
 				raw_json = cJSON_Parse(req_payload);
 				params_json = cJSON_GetObjectItem(raw_json,"params");
 				led_json = cJSON_GetObjectItem(params_json,"led");
+				fan_json = cJSON_GetObjectItem(params_json,"fan");
 				if(led_json != NULL)
 				{
 					if(led_json->type == cJSON_True)
 					{
-//						GPIO_ResetBits(LED1_PORT,LED1_PIN);//µãÁÁLED1
 						LED_SetCompare2(100);
 						LED_Status = 1;
 					}
 					else 
 					{
-//						GPIO_SetBits(LED1_PORT,LED1_PIN);//µãÁÁLED1
 						LED_SetCompare2(0);
 						LED_Status = 0;
+					}
+				}
+				
+				if(fan_json != NULL)
+				{
+					if(fan_json->type == cJSON_True)
+					{
+						FAN_SetCompare3(100);
+						FAN_Status = 1;
+					}
+					else 
+					{
+						FAN_SetCompare3(0);
+						FAN_Status = 0;
 					}
 				}
 				
