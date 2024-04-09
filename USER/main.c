@@ -67,6 +67,18 @@ int main(void)
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置中断优先级分组为组2：2位抢占优先级，2位响应优先级
 	delay_init();
+	OLED_Init();
+	//Determine whether it is a watchdog reset
+		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == SET)
+	{
+		OLED_ShowString(4, 1, "IWDGRST");
+		delay_ms(500);
+		OLED_ShowString(4, 1, "       ");
+		delay_ms(100);
+		
+		RCC_ClearFlag();
+	}
+	
 	LD3320_Init();
 	EXTIX_Init();
 	
@@ -77,8 +89,15 @@ int main(void)
 	uart1_init(115200);
 	uart2_init(115200);
 
-	OLED_Init();
 	AD_Init();
+	
+	//Configure a stand-alone watchdog
+	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+	IWDG_SetPrescaler(IWDG_Prescaler_256);
+	IWDG_SetReload(2343);					//15000ms
+	IWDG_ReloadCounter();
+	IWDG_Enable();
+	
 	ESP8266_Init();
 	
 	//Connect MQTT
@@ -95,8 +114,12 @@ int main(void)
 	OLED_ShowString(1,1,"Temperature:00.0");
 	OLED_ShowString(2,1,"Humidity:");
 	OLED_ShowString(3, 1, "Light:00.00%");
+	
 	while(1)
 	{
+		//Resets the standalone watchdog value
+		IWDG_ReloadCounter();
+		
 		//Speech recognition detection
 		ASR_Recognition(); 
 		
