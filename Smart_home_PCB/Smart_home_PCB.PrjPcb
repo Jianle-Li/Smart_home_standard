@@ -116,6 +116,10 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=HMSPCNOY
 
+[GeneratedDocument1]
+DocumentPath=Project Outputs for Smart_home_PCB\Design Rule Check - Smart_home.html
+DItemRevisionGUID=
+
 [Configuration1]
 Name=Sources
 ParameterCount=0

@@ -1,0 +1,13 @@
+Add Component: Footprint Not Found M3 125X200
+Add Component: Footprint Not Found M3 125X200
+Added Member To Class: ClassName=Smart_home Member=Component J1 STM32_L
+Added Member To Class: ClassName=Smart_home Member=Component J2 STM32_R
+Added Member To Class: ClassName=Smart_home Member=Component J3 π‚√ÙµÁ◊Ë
+Added Member To Class: ClassName=Smart_home Member=Component J7 OLED
+Added Member To Class: ClassName=Smart_home Member=Component J8 LED
+Added Member To Class: ClassName=Smart_home Member=Component J10 ∑Á…»
+Added Member To Class: ClassName=Smart_home Member=Component J11 VCC3.3_VCC_5V
+Added Member To Class: ClassName=Smart_home Member=Component J12 STM32_L
+Added Member To Class: ClassName=Smart_home Member=Component J13 STM32_R
+Add Class Member: Failed to add class member : Component M1 M3
+Add Class Member: Failed to add class member : Component M2 M3

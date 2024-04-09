@@ -1,0 +1,5 @@
+Removed Pin From Net: NetName=GND Pin=J8-1
+Removed Pin From Net: NetName=PA1 Pin=J8-2
+Change Component Comment : Designator=J4 Old Comment=ESP8266 New Comment=ESP8266-01S
+Added Pin To Net: NetName=PA1 Pin=J8-1
+Added Pin To Net: NetName=GND Pin=J8-2

@@ -40,6 +40,7 @@
 #include "led.h"
 #include "fan.h"
 #include "dht11.h"
+#include "oled.h"
 
 //C库
 #include <string.h>
@@ -350,8 +351,9 @@ _Bool OneNet_DevLink(void)
 			{
 				switch(MQTT_UnPacketConnectAck(dataPtr))
 				{
-					case 0:UsartPrintf(USART_DEBUG, "Tips:	连接成功\r\n");status = 0;break;
-					
+					case 0:UsartPrintf(USART_DEBUG, "Tips:	连接成功\r\n");status = 0;
+					OLED_ShowString(4,1,"               ");
+					OLED_ShowString(4,1,"connect success");break;
 					case 1:UsartPrintf(USART_DEBUG, "WARN:	连接失败：协议错误\r\n");break;
 					case 2:UsartPrintf(USART_DEBUG, "WARN:	连接失败：非法的clientid\r\n");break;
 					case 3:UsartPrintf(USART_DEBUG, "WARN:	连接失败：服务器失败\r\n");break;
@@ -438,7 +440,9 @@ void OneNet_SendData(void)
 			
 			ESP8266_SendData(mqttPacket._data, mqttPacket._len);									//上传数据到平台
 			UsartPrintf(USART_DEBUG, "Send %d Bytes\r\n", mqttPacket._len);
-			
+			OLED_ShowString(4,1,"                ");
+			OLED_ShowString(4,1,"Send 000 Bytes");
+			OLED_ShowNum(4,6,mqttPacket._len,3);
 			MQTT_DeleteBuffer(&mqttPacket);															//删包
 		}
 		else
@@ -591,14 +595,22 @@ void OneNet_RevPro(unsigned char *cmd)
 		case MQTT_PKT_PUBACK:														//发送Publish消息，平台回复的Ack
 		
 			if(MQTT_UnPacketPublishAck(cmd) == 0)
+			{
 				UsartPrintf(USART_DEBUG, "Tips:	MQTT Publish Send OK\r\n");
+				OLED_ShowString(4,1,"                ");
+				OLED_ShowString(4,1,"Publish Send OK");
+			}
 			
 		break;
 		
 		case MQTT_PKT_SUBACK:																//发送Subscribe消息的Ack
 		
 			if(MQTT_UnPacketSubscribe(cmd) == 0)
+			{
 				UsartPrintf(USART_DEBUG, "Tips:	MQTT Subscribe OK\r\n");
+				OLED_ShowString(4,1,"                ");
+				OLED_ShowString(4,1,"MQTT SubscribeOK");
+			}
 			else
 				UsartPrintf(USART_DEBUG, "Tips:	MQTT Subscribe Err\r\n");
 		

@@ -120,6 +120,8 @@ int main(void)
 		if(++timeCount >= 10)									//发送间隔5s
 			{
 				UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
+				OLED_ShowString(4,1,"                ");
+				OLED_ShowString(4,1,"OneNet_SendDat");
 				OneNet_SendData();									//发送数据
 				timeCount = 0;
 				ESP8266_Clear();
@@ -212,6 +214,7 @@ void User_Modification(u8 dat)
 					printf("灯已关闭\r\n"); //text.....
 //				GPIO_SetBits(LED1_PORT,LED1_PIN);//点亮LED1
 					LED_SetCompare2(0);
+					LED_PID_Status = 0;
 					LED_Status = 0;
 												break;
 			
@@ -223,6 +226,7 @@ void User_Modification(u8 dat)
 				else
 				{
 					LED_SetCompare2(LED_GetCapture2() + 25);
+					LED_Status = 1;
 					printf("亮度已增加\r\n");
 				}					//text.....
 												break;
@@ -230,6 +234,7 @@ void User_Modification(u8 dat)
 			case CODE_1KL2:		//命令“亮度减”
 				if(LED_GetCapture2() == 0)
 				{
+					LED_Status = 0;
 					printf("亮度已为最小\r\n"); 
 				}
 				else
@@ -261,9 +266,11 @@ void User_Modification(u8 dat)
 					printf("自动调光已关闭\r\n"); //text.....
 					LED_PID_Status = 0;
 					LED_Status = 0;
-			
-			
 												break;
+			
+			
+			
+			
 			case CODE_2KL3:	 //命令“....”
 					printf("\"向左转\"识别成功\r\n"); //text.....
 												break;
