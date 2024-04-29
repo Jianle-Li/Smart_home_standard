@@ -63,22 +63,27 @@ void UsageFault_Handler(void)
   }
 }
  
-void SVC_Handler(void)
-{
-}
+//#if(!SYS_SUPPORT_OS)
+//void SVC_Handler(void)
+//{
+//}
+//#endif
  
 void DebugMon_Handler(void)
 {
 }
- 
-void PendSV_Handler(void)
-{
-}
- 
-void SysTick_Handler(void)
-{
-}
 
+// #if(!SYS_SUPPORT_OS)
+//void PendSV_Handler(void)
+//{
+//}
+//#endif
+
+// #if(!SYS_SUPPORT_OS)
+//void SysTick_Handler(void)
+//{
+//}
+//#endif
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

@@ -228,7 +228,7 @@ u8 LD_AsrAddFixed(void)
 	
 	
 	u8 sRecog[DATE_A][DATE_B] = {
-																		"li ming",\
+																		"zhi neng jia ju",\
 																		"kai deng",\
 																		"guan deng",\
 		

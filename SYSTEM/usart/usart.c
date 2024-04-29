@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////// 	 
 //如果使用ucos,则包括下面的头文件即可.
 #if SYSTEM_SUPPORT_OS
-#include "includes.h"					//ucos 使用	  
+#include "FreeRTOS.h"					//os 使用	  
 #endif
 	  
 #if 1
@@ -191,9 +191,6 @@ void UsartPrintf(USART_TypeDef *USARTx, char *fmt,...)
 void USART1_IRQHandler(void)                	//串口1中断服务程序
 	{
 	u8 Res;
-#if SYSTEM_SUPPORT_OS 		//如果SYSTEM_SUPPORT_OS为真，则需要支持OS.
-	OSIntEnter();    
-#endif
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
 		{
 		Res =USART_ReceiveData(USART1);	//读取接收到的数据
@@ -209,17 +206,14 @@ void USART1_IRQHandler(void)                	//串口1中断服务程序
 				{	
 				if(Res==0x0d)USART_RX_STA|=0x4000;
 				else
-					{
+				{
 					USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
 					USART_RX_STA++;
 					if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收	  
-					}		 
-				}
-			}   		 
-     } 
-#if SYSTEM_SUPPORT_OS 	//如果SYSTEM_SUPPORT_OS为真，则需要支持OS.
-	OSIntExit();  											 
-#endif
+				}		 
+			}
+		}   		 
+	} 
 } 
 #endif	
 
