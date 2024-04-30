@@ -52,8 +52,8 @@ void EXTIX_Init(void)
 	EXTI_Init(&EXTI_InitStructure);	 	//根据EXTI_InitStruct中指定的参数初始化外设EXTI寄存器
 
 	NVIC_InitStructure.NVIC_IRQChannel = LD3320_IRQN;			//使能按键KEY2所在的外部中断通道
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	//抢占优先级2， 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;					//子优先级2
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x06;	//抢占优先级2， 
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;					//子优先级2
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								//使能外部中断通道
 	NVIC_Init(&NVIC_InitStructure);
 }

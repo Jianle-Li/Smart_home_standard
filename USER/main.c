@@ -1,14 +1,10 @@
 /*
-1.项目名称：绿深旗舰店LD3320语音识别模块STM32F103C8T6测试程序
 2.显示模块：串口输出
 3.配套APP：无
 4.配套上位机：无
 5.项目组成：LD3320语音识别模块
 6.项目功能：识别设置好的口令，并通过串口返回识别信息。
 7.主要原理：具体参考LD3320数据手册
-8.购买地址：https://lssz.tmall.com 或淘宝上搜索“绿深旗舰店”
-10.版权声明：绿深旗舰店所有程序都申请软件著作权。均与本店产品配套出售，请不要传播，以免追究其法律责任！
-接线定义:
 	VCC与5V任接其一                                                     
 	VCC接3.3V供电，5V接5V供电
 	GND--GND
@@ -42,6 +38,45 @@
 //C library
 #include <string.h>
 
+//FreeRTOS
+#include "FreeRTOS.h"
+#include "task.h"
+//*****************************************************
+//任务优先级
+#define START_TASK_PRIO		1
+//任务堆栈大小	
+#define START_STK_SIZE 		128  
+//任务句柄
+TaskHandle_t StartTask_Handler;
+//任务函数
+void start_task(void *pvParameters);
+
+#define TASK1_TASK_PRIO		6
+#define TASK1_STK_SIZE 		50  
+TaskHandle_t Task1Task_Handler;
+void task1_task(void *pvParameters);
+
+#define TASK2_TASK_PRIO		7
+#define TASK2_STK_SIZE 		50  
+TaskHandle_t Task2Task_Handler;
+void task2_task(void *pvParameters);
+
+#define TASK3_TASK_PRIO		5
+#define TASK3_STK_SIZE 		100  
+TaskHandle_t Task3Task_Handler;
+void task3_task(void *pvParameters);
+
+#define TASK4_TASK_PRIO		2
+#define TASK4_STK_SIZE 		200  
+TaskHandle_t Task4Task_Handler;
+void task4_task(void *pvParameters);
+
+#define TASK5_TASK_PRIO		3
+#define TASK5_STK_SIZE 		200  
+TaskHandle_t Task5Task_Handler;
+void task5_task(void *pvParameters);
+
+//*****************************************************
 #define ESP8266_ONENET_INFO		"AT+CIPSTART=\"TCP\",\"mqtts.heclouds.com\",1883\r\n" //
 
 void User_Modification(u8 dat);
@@ -56,7 +91,7 @@ uint8_t LED_Status;//LED status flags
 uint8_t LED_PID_Status;//LED_PID status flags
 uint8_t FAN_Status;//FAN status flags
 int main(void)
-{		
+{	
 	nAsrStatus = LD_ASR_NONE;		//	初始状态：没有在作ASR
 	SCS=0;
 	LED_Status = 0;
@@ -65,9 +100,11 @@ int main(void)
 	unsigned short timeCount = 0;	//发送间隔变量
 	unsigned char *dataPtr = NULL;
 	
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置中断优先级分组为组2：2位抢占优先级，2位响应优先级
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);//设置中断优先级分组为组2：2位抢占优先级，2位响应优先级
+
 	delay_init();
 	OLED_Init();
+	
 	//Determine whether it is a watchdog reset
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == SET)
 	{
@@ -86,10 +123,12 @@ int main(void)
 	FAN_Init();
 	LD_Reset();
 	
+	AD_Init();
+
 	uart1_init(115200);
 	uart2_init(115200);
 
-	AD_Init();
+	
 	
 	//Configure a stand-alone watchdog
 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
@@ -111,10 +150,22 @@ int main(void)
 	OneNET_Subscribe();
 
 	printf("运行程序\r\n");
+	
 	OLED_ShowString(1,1,"Temperature:00.0");
 	OLED_ShowString(2,1,"Humidity:");
 	OLED_ShowString(3, 1, "Light:00.00%");
-	
+
+//***************************************************************
+	//创建开始任务
+    xTaskCreate((TaskFunction_t )start_task,            //任务函数
+                (const char*    )"start_task",          //任务名称
+                (uint16_t       )START_STK_SIZE,        //任务堆栈大小
+                (void*          )NULL,                  //传递给任务函数的参数
+                (UBaseType_t    )START_TASK_PRIO,       //任务优先级
+                (TaskHandle_t*  )&StartTask_Handler);   //任务句柄              
+    vTaskStartScheduler();          //开启任务调度
+//***************************************************************
+/*
 	while(1)
 	{
 		//Resets the standalone watchdog value
@@ -168,8 +219,164 @@ int main(void)
 				delay_ms(500);
 			}
 	}
-	
+	*/
 }
+//******************************************************
+//开始任务任务函数
+void start_task(void *pvParameters)
+{
+    taskENTER_CRITICAL();           //进入临界区
+    //创建TASK1任务
+    xTaskCreate((TaskFunction_t )task1_task,             
+                (const char*    )"task1_task",           
+                (uint16_t       )TASK1_STK_SIZE,        
+                (void*          )NULL,                  
+                (UBaseType_t    )TASK1_TASK_PRIO,        
+                (TaskHandle_t*  )&Task1Task_Handler);   
+    //创建TASK2任务
+    xTaskCreate((TaskFunction_t )task2_task,     
+                (const char*    )"task2_task",   
+                (uint16_t       )TASK2_STK_SIZE,
+                (void*          )NULL,
+                (UBaseType_t    )TASK2_TASK_PRIO,
+                (TaskHandle_t*  )&Task2Task_Handler); 
+
+		//创建TASK3任务
+    xTaskCreate((TaskFunction_t )task3_task,     
+                (const char*    )"task3_task",   
+                (uint16_t       )TASK3_STK_SIZE,
+                (void*          )NULL,
+                (UBaseType_t    )TASK3_TASK_PRIO,
+                (TaskHandle_t*  )&Task3Task_Handler); 
+		//创建TASK4任务
+    xTaskCreate((TaskFunction_t )task4_task,     
+                (const char*    )"task4_task",   
+                (uint16_t       )TASK4_STK_SIZE,
+                (void*          )NULL,
+                (UBaseType_t    )TASK4_TASK_PRIO,
+                (TaskHandle_t*  )&Task4Task_Handler); 
+		//创建TASK5任务
+    xTaskCreate((TaskFunction_t )task5_task,     
+                (const char*    )"task5_task",   
+                (uint16_t       )TASK5_STK_SIZE,
+                (void*          )NULL,
+                (UBaseType_t    )TASK5_TASK_PRIO,
+                (TaskHandle_t*  )&Task5Task_Handler);
+
+    vTaskDelete(StartTask_Handler); //删除开始任务
+    taskEXIT_CRITICAL();            //退出临界区
+}
+
+void task1_task(void* pvParameters)
+{
+	while(1)
+	{
+		//Resets the standalone watchdog value
+		IWDG_ReloadCounter();
+		vTaskDelay(1000);
+		printf("task1\r\n");
+	}
+}
+
+void task2_task(void* pvParameters)
+{
+	while(1)
+	{
+		//Display light intensity
+		Light_Value = AD_GetValue();//Obtaining light intensity
+		OLED_ShowNum(3, 7,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100), 2);//The units place is displayed as a percentage
+		OLED_ShowNum(3, 10,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 10000) %100, 2);//Displays decimal places in percentage form
+		vTaskDelay(1000);
+		printf("task2\r\n");
+		
+		//Display the temperature and humidity on the screen
+		if(DHT_Read())
+			{
+				OLED_ShowNum(1,13,Data[2],2);
+				OLED_ShowNum(1,16,Data[3],1);
+				OLED_ShowNum(2,10,Data[0],2);
+			}
+			printf("task3\r\n");
+			vTaskDelay(1000);
+			
+		//LED auto-dimming
+		if(LED_PID_Status == 1)
+			{
+				uint16_t n = 60;
+				uint16_t output;
+				Light_Value = AD_GetValue();//Obtaining light intensity
+				output = (uint16_t)LED_PID_Controller(n,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
+				LED_SetCompare2(output);
+				printf("LED_PID%d\r\n",output);
+			}
+			printf("task7\r\n");
+			vTaskDelay(1000);
+	}
+}
+
+void task3_task(void* pvParameters)
+{
+	while(1)
+	{
+		//Speech recognition detection
+		ASR_Recognition();
+		printf("task3\r\n");
+		vTaskDelay(500);
+	}
+}
+
+void task4_task(void* pvParameters)
+{
+	unsigned short timeCount = 0;	//发送间隔变量
+	while(1)
+	{
+		//Send data to OneNet
+		if(++timeCount >= 10)									//发送间隔5s
+			{
+				UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
+				OLED_ShowString(4,1,"                ");
+				OLED_ShowString(4,1,"OneNet_SendDat");
+				OneNet_SendData();									//发送数据
+				timeCount = 0;
+				ESP8266_Clear();
+			}
+			printf("task4\r\n");
+			vTaskDelay(1000);
+	}
+
+}
+
+void task5_task(void* pvParameters)
+{
+	unsigned char *dataPtr = NULL;
+	while(1)
+	{
+		//Get OneNet data	
+		dataPtr = ESP8266_GetIPD(0);
+		if(dataPtr != NULL)
+		OneNet_RevPro(dataPtr);
+		delay_ms(10);
+		printf("task5\r\n");
+		vTaskDelay(1000);
+	}
+}
+
+//******************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -293,7 +500,6 @@ void User_Modification(u8 dat)
 			
 			
 			
-			
 			case CODE_2KL3:	 //命令“....”
 					printf("\"向左转\"识别成功\r\n"); //text.....
 												break;
@@ -319,12 +525,6 @@ void User_Modification(u8 dat)
 //														break;
 //					case CODE_4KL2:	 //命令“....”
 //							printf("P"); //text.....
-//														break;
-//					case CODE_4KL3:	 //命令“....”
-//							printf("Q"); //text.....
-//														break;
-//					case CODE_4KL4:	 //命令“....”
-//							printf("R"); //text.....
 //														break;
 			default:break;
 		}
