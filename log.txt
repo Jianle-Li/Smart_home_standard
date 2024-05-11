@@ -1,0 +1,7 @@
+2024.4.4.30
+问题：移植FreeRTOS系统并创建任务后不执行，调试窗口显示Cannot access Memory
+解决：FreeRTOSConfig.h文件中#define configTOTAL_HEAP_SIZE	((size_t)(10*1024))     //系统所有总的堆大小所设定的值不符合芯片的实际，在STM32F103C8T6中将20*1024改为10*1024即可
+
+问题：系统串口返回FreeRTOS断言Error:..\FreeRTOS\portable\RVDS\ARM_CM3\port.c,244
+解决：将中断优先级分组为组4，即	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);并根据FreeRTOSConfig.h中#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	5                       //系统可管理的最高中断优先级，将USART的中断优先级设置在5~15之间；且在定义任务时注意优先级的安排，此外本项目将多个任务合并成一个任务，以避免过多个任务而出现阻塞等情况
+

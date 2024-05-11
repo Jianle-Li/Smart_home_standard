@@ -9,8 +9,6 @@
 //#define LED1_PORT_RCC		RCC_APB2Periph_GPIOB
 
 void LED_Init(void);
-extern uint8_t LED_Status;
-extern uint8_t LED_PID_Status;
 void LED_SetCompare2(uint16_t Compare);
 uint16_t LED_GetCapture2(void);
 float LED_PID_Controller(float setpoint, float current_value);

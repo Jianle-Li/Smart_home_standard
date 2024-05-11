@@ -90,6 +90,9 @@ uint16_t Light_Value;//The value of the light sensor
 uint8_t LED_Status;//LED status flags
 uint8_t LED_PID_Status;//LED_PID status flags
 uint8_t FAN_Status;//FAN status flags
+uint8_t FAN_PID_Status;//FAN_PID status flags
+uint8_t Data[5]={0x00,0x00,0x00,0x00,0x00,};
+
 int main(void)
 {	
 	nAsrStatus = LD_ASR_NONE;		//	初始状态：没有在作ASR
@@ -303,11 +306,23 @@ void task2_task(void* pvParameters)
 		if(LED_PID_Status == 1)
 			{
 				uint16_t n = 60;
-				uint16_t output;
+				uint16_t LED_output;
 				Light_Value = AD_GetValue();//Obtaining light intensity
-				output = (uint16_t)LED_PID_Controller(n,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
-				LED_SetCompare2(output);
-				printf("LED_PID%d\r\n",output);
+				LED_output = (uint16_t)LED_PID_Controller(n,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
+				LED_SetCompare2(LED_output);
+				printf("LED_PID: %d\r\n",LED_output);
+			}
+			printf("task6\r\n");
+			vTaskDelay(1000);
+			
+		//FAN auto-dimming
+		if(FAN_PID_Status == 1)
+			{
+				uint16_t n = 20;
+				uint16_t FAN_output;
+				FAN_output = (uint16_t)FAN_PID_Controller(Data[2],n);
+				FAN_SetCompare3(FAN_output);
+				printf("FAN_PID: %d\r\n",FAN_output);
 			}
 			printf("task7\r\n");
 			vTaskDelay(1000);
@@ -362,14 +377,6 @@ void task5_task(void* pvParameters)
 }
 
 //******************************************************
-
-
-
-
-
-
-
-
 
 
 
@@ -484,6 +491,7 @@ void User_Modification(u8 dat)
 					printf("风扇已关闭\r\n"); //text.....
 					FAN_SetCompare3(0);
 					FAN_Status = 0;
+			    FAN_PID_Status = 0;
 												break;
 			
 			case CODE_2KL1:	 //命令“开启调光”
@@ -497,12 +505,15 @@ void User_Modification(u8 dat)
 					LED_PID_Status = 0;
 					LED_Status = 0;
 												break;
-			
-			
-			
-			case CODE_2KL3:	 //命令“....”
-					printf("\"向左转\"识别成功\r\n"); //text.....
+						
+			case CODE_2KL3:	 //命令“调节温度”
+					printf("调节温度已开启\r\n"); //text.....
+					FAN_PID_Status = 1;
+					FAN_Status = 1;
 												break;
+			
+			
+			
 			case CODE_2KL4:	 //命令“....”/
 					printf("\"向右转\"识别成功\r\n"); //text.....
 															break;

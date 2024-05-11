@@ -60,7 +60,11 @@ char key[48];
 
 
 extern unsigned char esp8266_buf[512];
-
+extern uint16_t Light_Value;
+extern uint8_t LED_Status;
+extern uint8_t LED_PID_Status;
+extern uint8_t FAN_Status;
+extern uint8_t Data[5];
 /*
 ************************************************************
 *	º¯ÊýÃû³Æ£º	OTA_UrlEncode

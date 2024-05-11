@@ -9,6 +9,15 @@
 
 #include "stm32f10x.h"                  // Device header
 
+// 定义PID控制器的参数
+#define FAN_KP 2
+#define FAN_KI 1
+#define FAN_KD 0.5
+
+// 定义PID控制器的变量
+float FAN_previousError = 0;
+float FAN_integral = 0;
+
 void FAN_Init(void)
 {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
@@ -53,4 +62,32 @@ void FAN_SetCompare3(uint16_t Compare)
 uint16_t FAN_GetCapture3(void)
 {
 	return TIM_GetCapture3(TIM3);
+}
+
+// 计算PID控制器的输出
+float FAN_PID_Controller(float setpoint, float current_value)
+{
+    float error = setpoint - current_value;// 计算误差
+    FAN_integral += error;// 计算积分项
+    float derivative = error - FAN_previousError;// 计算微分项
+    FAN_previousError = error;
+    float output = FAN_KP * error + FAN_KI * FAN_integral + FAN_KD * derivative;// 计算PID控制器的输出
+    // 限制输出范围在合理的范围内
+    if (output < 0)
+		{
+        output = 0;
+    }
+		else if (output > 100)
+		{
+        output = 100;
+    }
+		if (FAN_integral > 150)
+		{
+			FAN_integral = 150;
+		}
+		if (FAN_integral < -150)
+		{
+			FAN_integral = -150;
+		}
+    return output;
 }

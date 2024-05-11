@@ -14,6 +14,5 @@ void DHT_GPIO_SET_OUTPUT(void);
 void DHT_GPIO_SET_INTPUT(void);
 uint8_t DHT_Read_Byte(void);
 uint8_t DHT_Read(void);
-extern uint8_t Data[5];
 
 #endif

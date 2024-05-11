@@ -9,9 +9,8 @@
 //#define LED1_PORT_RCC		RCC_APB2Periph_GPIOB
 
 void FAN_Init(void);
-extern uint8_t FAN_Status;
-
 void FAN_SetCompare3(uint16_t Compare);
 uint16_t FAN_GetCapture3(void);
+float FAN_PID_Controller(float setpoint, float current_value);
 
 #endif

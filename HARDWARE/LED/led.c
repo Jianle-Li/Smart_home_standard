@@ -23,13 +23,13 @@
 #include "stm32f10x.h"                  // Device header
 
 // 定义PID控制器的参数
-#define KP 1
-#define KI 0.5
-#define KD 0.2
+#define LED_KP 1
+#define LED_KI 0.5
+#define LED_KD 0.2
 
 // 定义PID控制器的变量
-float previousError = 0;
-float integral = 0;
+float LED_previousError = 0;
+float LED_integral = 0;
 
 void LED_Init(void)
 {
@@ -81,10 +81,10 @@ uint16_t LED_GetCapture2(void)
 float LED_PID_Controller(float setpoint, float current_value)
 {
     float error = setpoint - current_value;// 计算误差
-    integral += error;// 计算积分项
-    float derivative = error - previousError;// 计算微分项
-    previousError = error;
-    float output = KP * error + KI * integral + KD * derivative;// 计算PID控制器的输出
+    LED_integral += error;// 计算积分项
+    float derivative = error - LED_previousError;// 计算微分项
+    LED_previousError = error;
+    float output = LED_KP * error + LED_KI * LED_integral + LED_KD * derivative;// 计算PID控制器的输出
     // 限制输出范围在合理的范围内
     if (output < 0)
 		{
@@ -94,13 +94,13 @@ float LED_PID_Controller(float setpoint, float current_value)
 		{
         output = 100;
     }
-		if (integral > 150)
+		if (LED_integral > 150)
 		{
-			integral = 150;
+			LED_integral = 150;
 		}
-		if (integral < -150)
+		if (LED_integral < -150)
 		{
-			integral = -150;
+			LED_integral = -150;
 		}
     return output;
 }

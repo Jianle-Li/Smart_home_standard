@@ -3,7 +3,7 @@
 
 #include "dht11.h"
 
-uint8_t Data[5]={0x00,0x00,0x00,0x00,0x00,};
+extern uint8_t Data[5];
 
 void DHT_GPIO_SET_OUTPUT(void)
 {

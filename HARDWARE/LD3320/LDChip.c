@@ -239,8 +239,8 @@ u8 LD_AsrAddFixed(void)
 		
 																		"kai qi tiao guang",\
 																		"guan bi tiao guang",\
-																		"xiang zuo zhuan",\
-																		"xiang you zhuan",\
+																		"tiao jie wen du",\
+																		"shi du tiao jie",\
 		
 																		"da kai kong tiao",\
 																		"guan bi kong tiao",\
