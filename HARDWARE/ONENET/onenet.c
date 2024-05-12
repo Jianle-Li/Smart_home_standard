@@ -63,7 +63,10 @@ extern unsigned char esp8266_buf[512];
 extern uint16_t Light_Value;
 extern uint8_t LED_Status;
 extern uint8_t LED_PID_Status;
+extern uint16_t Brig_tar;
+extern uint16_t Temp_tar;
 extern uint8_t FAN_Status;
+extern uint8_t FAN_PID_Status;
 extern uint8_t Data[5];
 /*
 ************************************************************
@@ -400,7 +403,11 @@ unsigned char OneNet_FillBuf(char *buf)
 	strcat(buf, text);
 	
 	memset(text, 0, sizeof(text));
-	sprintf(text, "\"fan\":{\"value\":%s}", FAN_Status? "true" : "false");
+	sprintf(text, "\"fan\":{\"value\":%s},", FAN_Status? "true" : "false");
+	strcat(buf, text);
+	
+	memset(text, 0, sizeof(text));
+	sprintf(text, "\"brig\":{\"value\":%d}", 100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
 	strcat(buf, text);
 	
 	strcat(buf, "}}");
@@ -546,7 +553,7 @@ void OneNet_RevPro(unsigned char *cmd)
 	char numBuf[10];
 	int num = 0;
 	
-	cJSON *raw_json, *params_json, *led_json, *fan_json;
+	cJSON *raw_json, *params_json, *led_json, *fan_json, *brig_json, *temp_json;
 
 	type = MQTT_UnPacketRecv(cmd);
 	switch(type)
@@ -565,6 +572,8 @@ void OneNet_RevPro(unsigned char *cmd)
 				params_json = cJSON_GetObjectItem(raw_json,"params");
 				led_json = cJSON_GetObjectItem(params_json,"led");
 				fan_json = cJSON_GetObjectItem(params_json,"fan");
+				brig_json = cJSON_GetObjectItem(params_json,"brig");
+				temp_json = cJSON_GetObjectItem(params_json,"temp");
 				if(led_json != NULL)
 				{
 					if(led_json->type == cJSON_True)
@@ -576,6 +585,7 @@ void OneNet_RevPro(unsigned char *cmd)
 					{
 						LED_SetCompare2(0);
 						LED_Status = 0;
+					  LED_PID_Status = 0;
 					}
 				}
 				
@@ -590,7 +600,24 @@ void OneNet_RevPro(unsigned char *cmd)
 					{
 						FAN_SetCompare3(0);
 						FAN_Status = 0;
+						FAN_PID_Status = 0;
 					}
+				}
+				
+				if(brig_json != NULL)
+				{
+					LED_Status = 1;
+					LED_PID_Status = 1;
+					Brig_tar = brig_json->valueint;
+					printf("Target brightness: %d\r\n",brig_json->valueint);
+				}
+				
+				if(temp_json != NULL)
+				{
+					FAN_Status = 1;
+					FAN_PID_Status = 1;
+					Temp_tar = temp_json->valueint;
+					printf("Target temperature: %d\r\n",temp_json->valueint);
 				}
 				
 				cJSON_Delete(raw_json);

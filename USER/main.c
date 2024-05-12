@@ -86,7 +86,9 @@ u8 nAsrStatus=0;
 u8 nAsrRes=0;
 u8 flag=0;
 
-uint16_t Light_Value;//The value of the light sensor
+uint16_t Light_Value = 0;//The value of the light sensor
+uint16_t Brig_tar = 0;
+uint16_t Temp_tar = 0;
 uint8_t LED_Status;//LED status flags
 uint8_t LED_PID_Status;//LED_PID status flags
 uint8_t FAN_Status;//FAN status flags
@@ -269,7 +271,7 @@ void start_task(void *pvParameters)
     vTaskDelete(StartTask_Handler); //删除开始任务
     taskEXIT_CRITICAL();            //退出临界区
 }
-
+//*********************************************************
 void task1_task(void* pvParameters)
 {
 	while(1)
@@ -305,10 +307,9 @@ void task2_task(void* pvParameters)
 		//LED auto-dimming
 		if(LED_PID_Status == 1)
 			{
-				uint16_t n = 60;
 				uint16_t LED_output;
 				Light_Value = AD_GetValue();//Obtaining light intensity
-				LED_output = (uint16_t)LED_PID_Controller(n,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
+				LED_output = (uint16_t)LED_PID_Controller(Brig_tar,100 - (uint16_t)(((float)(Light_Value - 100) / 2900) * 100));
 				LED_SetCompare2(LED_output);
 				printf("LED_PID: %d\r\n",LED_output);
 			}
@@ -318,9 +319,8 @@ void task2_task(void* pvParameters)
 		//FAN auto-dimming
 		if(FAN_PID_Status == 1)
 			{
-				uint16_t n = 20;
 				uint16_t FAN_output;
-				FAN_output = (uint16_t)FAN_PID_Controller(Data[2],n);
+				FAN_output = (uint16_t)FAN_PID_Controller(Data[2],Temp_tar);
 				FAN_SetCompare3(FAN_output);
 				printf("FAN_PID: %d\r\n",FAN_output);
 			}
